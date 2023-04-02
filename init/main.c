@@ -560,7 +560,10 @@ asmlinkage __visible void __init start_kernel(void)
 {
 	char *command_line;
 	char *after_dashes;
+	int   i=0;
 
+/*  cmd verity hack start*/
+    char *command_line_copy, *command_line_new, *to_cmd;
 	set_task_stack_end_magic(&init_task);
 	smp_setup_processor_id();
 	debug_objects_early_init();
@@ -579,6 +582,33 @@ asmlinkage __visible void __init start_kernel(void)
 	pr_notice("%s", linux_banner);
 	setup_arch(&command_line);
 	mm_init_cpumask(&init_mm);
+   command_line_copy = memblock_virt_alloc(strlen(command_line) + 1, 0);
+   command_line_new = memblock_virt_alloc(strlen(command_line) + 1, 0);
+   to_cmd= memblock_virt_alloc(100, 0);
+   
+   strcpy(command_line_copy, command_line);
+   
+while ((to_cmd = strsep(&command_line_copy, " ")) != NULL) {
+   
+   if (!strcmp(to_cmd,"androidboot.veritymode=enforcing")) to_cmd="androidboot.verifiedbootstate=disabled";
+   if (!strcmp(to_cmd,"androidboot.vbmeta.invalidate_on_error=yes")) to_cmd="";
+   if (!strcmp(to_cmd,"androidboot.veritymode.managed=yes")) to_cmd="";
+   if (strcmp(to_cmd,"")) {strcat (command_line_new, " " ); strcat (command_line_new, to_cmd ); }
+	}
+pr_notice("Kernel NEW command line: %s\n", command_line_new);
+pr_notice("Kernel ORIG command line: %s\n", command_line);
+while ( command_line[i] != 0 ) 
+{ 
+	command_line[i]=command_line_new[i];
+	i++;
+	}
+   
+   
+    memblock_free_early((unsigned long)command_line_copy, sizeof(*command_line_copy));
+    memblock_free_early((unsigned long)command_line_new, sizeof(*command_line_new));
+    memblock_free_early((unsigned long)to_cmd, sizeof(*to_cmd));
+	
+	/* hack end*/
 	setup_command_line(command_line);
 	setup_nr_cpu_ids();
 	setup_per_cpu_areas();
