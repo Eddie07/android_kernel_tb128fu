@@ -591,9 +591,13 @@ asmlinkage __visible void __init start_kernel(void)
 while ((to_cmd = strsep(&command_line_copy, " ")) != NULL) {
    
    if (!strcmp(to_cmd,"androidboot.veritymode=enforcing")) to_cmd="androidboot.verifiedbootstate=disabled";
+   if (!strcmp(to_cmd,"androidboot.target.region=PRC")) to_cmd="androidboot.target.region=ROW";
+   if (!strcmp(to_cmd,"androidboot.nv_region=PRC")) to_cmd="androidboot.nv_region=ROW";
    if (!strcmp(to_cmd,"androidboot.vbmeta.invalidate_on_error=yes")) to_cmd="";
    if (!strcmp(to_cmd,"androidboot.veritymode.managed=yes")) to_cmd="";
-   if (strcmp(to_cmd,"")) {strcat (command_line_new, " " ); strcat (command_line_new, to_cmd ); }
+   if (strcmp(to_cmd,"")) {
+		strcat (command_line_new, " " ); 
+		strcat (command_line_new, to_cmd ); }
 	}
 pr_notice("Kernel NEW command line: %s\n", command_line_new);
 pr_notice("Kernel ORIG command line: %s\n", command_line);
