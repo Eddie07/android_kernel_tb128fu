@@ -1,0 +1,2 @@
+source "drivers/net/usb/rmnet/perf/Kconfig"
+source "drivers/net/usb/rmnet/shs/Kconfig"
