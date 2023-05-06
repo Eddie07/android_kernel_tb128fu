@@ -582,19 +582,27 @@ asmlinkage __visible void __init start_kernel(void)
 	pr_notice("%s", linux_banner);
 	setup_arch(&command_line);
 	mm_init_cpumask(&init_mm);
-   command_line_copy = memblock_virt_alloc(strlen(command_line) + 1, 0);
-   command_line_new = memblock_virt_alloc(strlen(command_line) + 1, 0);
-   to_cmd= memblock_virt_alloc(100, 0);
+   	command_line_copy = memblock_virt_alloc(strlen(command_line) + 1, 0);
+   	command_line_new = memblock_virt_alloc(strlen(command_line) + 1, 0);
+   	to_cmd= memblock_virt_alloc(100, 0);
    
-   strcpy(command_line_copy, command_line);
+  	 strcpy(command_line_copy, command_line);
    
-while ((to_cmd = strsep(&command_line_copy, " ")) != NULL) {
+	while ((to_cmd = strsep(&command_line_copy, " ")) != NULL) {
    
-   if (!strcmp(to_cmd,"androidboot.veritymode=enforcing")) to_cmd="androidboot.verifiedbootstate=disabled";
-   if (!strcmp(to_cmd,"androidboot.target.region=PRC")) to_cmd="androidboot.target.region=ROW";
-   if (!strcmp(to_cmd,"androidboot.nv_region=PRC")) to_cmd="androidboot.nv_region=ROW";
-   if (!strcmp(to_cmd,"androidboot.vbmeta.invalidate_on_error=yes")) to_cmd="";
-   if (!strcmp(to_cmd,"androidboot.veritymode.managed=yes")) to_cmd="";
+	/* disable and vbmeta checks for android init */
+   	if (!strcmp(to_cmd,"androidboot.veritymode=enforcing")) to_cmd="androidboot.verifiedbootstate=disabled";
+   	if (!strcmp(to_cmd,"androidboot.vbmeta.invalidate_on_error=yes")) to_cmd="";
+   	if (!strcmp(to_cmd,"androidboot.veritymode.managed=yes")) to_cmd="";
+	/* disable and vbmeta checks for android init */
+
+	/*Do not replace region, can be done by editing of cmdline in bootimg */
+#if 0
+   	if (!strcmp(to_cmd,"androidboot.target.region=PRC")) to_cmd="androidboot.target.region=ROW";
+   	if (!strcmp(to_cmd,"androidboot.nv_region=PRC")) to_cmd="androidboot.nv_region=ROW"; 
+#endif
+	/*Do not replace region, can be done by editing of cmdline in bootimg */
+
    if (strcmp(to_cmd,"")) {
 		strcat (command_line_new, " " ); 
 		strcat (command_line_new, to_cmd ); }
